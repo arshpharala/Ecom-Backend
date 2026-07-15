@@ -1,0 +1,329 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Models\Catalog\AttributeValue;
+use App\Models\Catalog\Product;
+use App\Models\Catalog\ProductVariant;
+use App\Models\Wishlist;
+use App\Services\CartService;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Str;
+
+class ProductVariantRepository
+{
+    public function getFiltered($perPage = 12)
+    {
+        $filters = Request::only([
+            'is_wishlisted',
+            'is_featured',
+            'is_new',
+            'show_in_slider',
+            'category_id',
+            'category',
+            'brand_id',
+            'price_min',
+            'price_max',
+            'offer',
+            'tags',
+            'search',
+            'sort_by',
+            'exclude_ids',
+            'include_ids',
+        ]);
+
+        $filters['exclude_ids'] = $this->normalizeIdFilter($filters['exclude_ids'] ?? []);
+        $filters['include_ids'] = $this->normalizeIdFilter($filters['include_ids'] ?? []);
+
+        $filters['attributes'] = collect(Request::all())
+            ->filter(fn($val, $key) => str_starts_with($key, 'attr_'))
+            ->mapWithKeys(fn($val, $key) => [str_replace('attr_', '', $key) => $val])
+            ->toArray();
+
+        $query = ProductVariant::withJoins()
+            ->withFilters($filters)
+            ->applySorting($filters['sort_by'] ?? null)
+            ->with(['offers' => function ($query) {
+                $query->active();
+            }])
+            ->primary()
+            ->withSelection()
+            ->withActiveProducts();
+
+        if (auth()->check() && ! empty($filters['is_wishlisted'])) {
+            $query->whereHas('wishlists', fn($q) => $q->where('user_id', auth()->id()));
+        }
+
+        $query->groupBy('product_variants.id'); // Required to avoid duplicate entries due to joins
+
+        if (! empty($filters['include_ids'])) {
+            $includeIds = array_values(array_unique($filters['include_ids']));
+            $qualifiedIdColumn = $query->getQuery()->getGrammar()->wrap($query->qualifyColumn('id'));
+
+            $query->whereIn('product_variants.id', $includeIds);
+
+            $caseSql = "CASE {$qualifiedIdColumn} ";
+            foreach ($includeIds as $index => $id) {
+                $caseSql .= "WHEN ? THEN {$index} ";
+            }
+            $caseSql .= 'ELSE ' . count($includeIds) . ' END';
+
+            $query->reorder()->orderByRaw($caseSql, $includeIds);
+        }
+
+        // Handle pagination
+        if (Request::has('page')) {
+            return $query->paginate($perPage)->through(function ($productVariant) {
+                return $this->transform($productVariant);
+            });
+        }
+
+        return $query->limit($perPage)->get()->map(function ($productVariant) {
+            return $this->transform($productVariant);
+        });
+    }
+
+    protected function normalizeIdFilter($value): array
+    {
+        if (is_null($value) || $value === '') {
+            return [];
+        }
+
+        if (is_string($value)) {
+            $value = str_contains($value, ',') ? explode(',', $value) : [$value];
+        }
+
+        return collect(Arr::wrap($value))
+            ->map(fn($id) => trim((string) $id))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    public function transform($productVariant)
+    {
+        $productVariant->link = $productVariant->slug . '/' . $productVariant->id;
+        // $productVariant->image      = $productVariant->file_path ? asset('storage/' . $productVariant->file_path) : null;
+        $productVariant->image = get_attachment_url($productVariant->file_path);
+        $productVariant->currency = active_currency();
+        $productVariant->price_with_currency = price_format(active_currency(), $productVariant->price);
+        $productVariant->cart_item = (new CartService)->getItem($productVariant->id);
+        $productVariant->is_in_cart = $productVariant->cart_item ? true : false;
+
+        $productVariant->offer_data = $this->transformOffer($productVariant);
+
+        if (auth()->check()) {
+            $productVariant->is_wishlisted = Wishlist::isWishlisted(auth()->id(), $productVariant->id);
+        }
+
+        // Resolve stock display
+        $stockData = $this->resolveStock($productVariant);
+        $productVariant->stock = $stockData['stock'];
+        $productVariant->stock_display = $stockData['stock_display'];
+
+        return $productVariant;
+    }
+
+    /**
+     * Resolve stock display based on quantity thresholds
+     *
+     * @param  ProductVariant  $variant
+     * @return array ['stock' => int, 'stock_display' => string]
+     */
+    public function resolveStock($variant)
+    {
+        $stock = $variant->stock ?? 0;
+
+        if ($stock >= 1000) {
+            return [
+                'stock' => $stock,
+                'stock_display' => '1000+ Units',
+            ];
+        } elseif ($stock >= 100) {
+            return [
+                'stock' => $stock,
+                'stock_display' => '100+ Units',
+            ];
+        } elseif ($stock >= 10) {
+            return [
+                'stock' => $stock,
+                'stock_display' => '10+ Units',
+            ];
+        } else {
+            return [
+                'stock' => $stock,
+                'stock_display' => $stock,
+            ];
+        }
+    }
+
+    protected function transformOffer($variant)
+    {
+        // $offer = $variant->activeOffer();
+        $offer = $variant->offers->first(); // use loaded offers to avoid extra query
+
+        if (! $offer) {
+            return [
+                'has_offer' => false,
+                'discounted_price' => null,
+                'label' => null,
+                'title' => null,
+            ];
+        }
+
+        $discountedPrice = null;
+        if ($offer->discount_type === 'percent') {
+            $discountedPrice = round($variant->price * (1 - $offer->discount_value / 100), 2);
+        } elseif ($offer->discount_type === 'fixed') {
+            $discountedPrice = max(0, $variant->price - $offer->discount_value);
+        }
+
+        return [
+            'has_offer' => true,
+            'discounted_price' => $discountedPrice,
+            'discounted_price_with_currency' => price_format(active_currency(), $discountedPrice),
+            'label' => $offer->label,
+            'title' => $offer->translation->title ?? '',
+        ];
+    }
+
+    public function getGiftProducts($categorySlug = 'gift-sets', $limit = 3)
+    {
+        return ProductVariant::withJoins()
+            ->select(
+                'product_variants.id',
+                'product_variants.price',
+                'products.slug',
+                'product_translations.name',
+                'main_attachment.file_path',
+                'main_attachment.file_name'
+            )
+            ->applySorting(null)
+            ->withFilters(['show_in_slider' => 1])
+            ->withActiveProducts()
+            ->where('categories.slug', $categorySlug)
+            ->limit($limit)
+            ->get()
+            ->map(function ($variant) {
+
+                // $variant->image = $variant->file_path ? 'storage/' . $variant->file_path : 'default.jpg';
+                $variant->image = get_attachment_url($variant->file_path);
+                $variant->link = route('products.show', ['slug' => $variant->slug, 'variant' => $variant->id]);
+
+                return $variant;
+            });
+    }
+
+    public function findBySlugWithRelations(string $slug): ?Product
+    {
+        return Product::with([
+            'translations',
+            'category.translations',
+            'brand',
+            'variants.attributeValues.attribute',
+            'variants.attachments',
+            'variants.shipping',
+        ])
+            ->where('slug', $slug)
+            ->first();
+    }
+
+    public function findVariantOrFirst(Product $productVariant, ?string $variantId): ?ProductVariant
+    {
+        if ($variantId) {
+            return $productVariant->variants->where('id', $variantId)->first();
+        }
+
+        return $productVariant->variants->first();
+    }
+
+    public function hasMultipleVariants(string $productId): bool
+    {
+        return ProductVariant::where('product_id', $productId)->count() > 1;
+    }
+
+    public function getProductIdFromVariantId(string $variantId): ?string
+    {
+        $variant = ProductVariant::find($variantId);
+        return $variant ? $variant->product_id : null;
+    }
+
+    public function getProductVariant(string $variantId)
+    {
+        $variant = ProductVariant::withJoins()
+            ->withSelection()
+            ->where('product_variants.id', $variantId)
+            ->firstOrFail();
+
+        return $this->transform($variant);
+    }
+
+    public function getProductWithAttributes(string $productId)
+    {
+        return Product::with(['variants.attributeValues.attribute'])->findOrFail($productId);
+    }
+
+    /* ======================================================
+        ATTRIBUTE UI HELPERS
+    ====================================================== */
+
+    public function extractAttributesFromVariants($product)
+    {
+        $attributes = [];
+
+        foreach ($product->variants as $variant) {
+            foreach ($variant->attributeValues as $value) {
+                $attrSlug = Str::slug($value->attribute->name);
+                $attributes[$attrSlug]['name'] = $value->attribute->name;
+                $attributes[$attrSlug]['values'][$value->value] = $value->value;
+            }
+        }
+
+        // 1) Sort values inside each attribute
+        foreach ($attributes as $slug => &$attr) {
+            $values = $attr['values'];
+
+            if (Str::lower($attr['name']) === 'size') {
+                // Custom sort for sizes
+                uksort($values, function ($a, $b) {
+                    $weightA = AttributeValue::getSizeSortWeight($a);
+                    $weightB = AttributeValue::getSizeSortWeight($b);
+
+                    if ($weightA == $weightB) return strcmp($a, $b);
+                    return $weightA - $weightB;
+                });
+            } else {
+                // Default alphabetical
+                ksort($values);
+            }
+
+            $attr['values'] = $values;
+        }
+
+        // 2) Sort attributes: Color always first
+        uksort($attributes, function ($a, $b) use ($attributes) {
+            $nameA = Str::lower($attributes[$a]['name']);
+            $nameB = Str::lower($attributes[$b]['name']);
+
+            if ($nameA === 'color') return -1;
+            if ($nameB === 'color') return 1;
+
+            return strcmp($nameA, $nameB);
+        });
+
+        return $attributes;
+    }
+
+    public function getSelectedAttributes($productVariant)
+    {
+        $selected = [];
+
+        foreach ($productVariant->attributeValues as $val) {
+            $selected[Str::slug($val->attribute->name)] = $val->value;
+        }
+
+        return $selected;
+    }
+
+}

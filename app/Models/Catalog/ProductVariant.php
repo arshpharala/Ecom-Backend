@@ -1,0 +1,211 @@
+<?php
+
+namespace App\Models\Catalog;
+
+use App\Models\CMS\Tag;
+use App\Models\Wishlist;
+use App\Models\Attachment;
+use Illuminate\Support\Arr;
+use App\Models\CMS\Packaging;
+use App\Models\Catalog\Product;
+use App\Models\Catalog\AttributeValue;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class ProductVariant extends Model
+{
+    use HasFactory, SoftDeletes, HasUuids;
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = ['product_id', 'sku', 'is_primary', 'price', 'stock', 'deleted_at', 'reference_id', 'reference_sku'];
+
+    public function scopeWithActiveProducts($query)
+    {
+        return $query->where('products.is_active', 1)
+            ->whereNull('products.deleted_at');
+    }
+
+    public function scopePrimary($query)
+    {
+        return $query->where('is_primary', 1);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
+    public function packagings()
+    {
+        return $this->belongsToMany(
+            Packaging::class,
+            'product_variant_packagings'
+        )->withPivot('value');
+    }
+
+
+    public function shipping()
+    {
+        return $this->hasOne(ProductVariantShipping::class);
+    }
+
+    public function attributeValues()
+    {
+        return $this->belongsToMany(AttributeValue::class, 'product_variant_attribute_value');
+    }
+
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'tag_product_variant');
+    }
+
+    public function offers()
+    {
+        return $this->belongsToMany(Offer::class, 'offer_product_variants');
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function activeOffer()
+    {
+        return $this->offers()
+            ->active()
+            ->first();
+    }
+
+    public function scopeWithJoins($query)
+    {
+        $locale = app()->getLocale();
+
+        return $query
+            ->join('products', 'product_variants.product_id', '=', 'products.id')
+            ->join('product_translations', function ($join) use ($locale) {
+                $join->on('product_translations.product_id', '=', 'products.id')
+                    ->where('product_translations.locale', $locale);
+            })
+            ->join('categories', 'categories.id', '=', 'products.category_id')
+            ->join('category_translations', function ($join) use ($locale) {
+                $join->on('categories.id', '=', 'category_translations.category_id')
+                    ->where('category_translations.locale', $locale);
+            })
+            ->leftJoin('category_products', 'category_products.product_id', '=', 'products.id')
+            ->leftJoin('brands', 'brands.id', '=', 'products.brand_id')
+            ->leftJoin('attachments as main_attachment', function ($join) {
+                $join->on('main_attachment.attachable_id', '=', 'product_variants.id')
+                    ->where('main_attachment.attachable_type', ProductVariant::class)
+                    ->whereRaw('main_attachment.id = (
+                    SELECT a.id FROM attachments a
+                    WHERE a.attachable_id = product_variants.id
+                      AND a.attachable_type = "' . addslashes(ProductVariant::class) . '"
+                    ORDER BY a.created_at ASC LIMIT 1
+                )');
+            });
+    }
+
+    public function scopeWithSelection($query)
+    {
+        return $query->select([
+            'product_variants.id as id',
+            'products.id as product_id',
+            'products.slug',
+            'product_variants.sku',
+            'product_variants.id as variant_id',
+            'product_translations.name',
+            'product_translations.description',
+            'product_variants.price',
+            'product_variants.stock',
+            'product_variants.is_primary',
+
+
+            'products.category_id',
+            'products.position',
+
+            'brands.name as brand_name',
+            'category_translations.name as category_name',
+            'main_attachment.file_path',
+            'main_attachment.file_name'
+        ]);
+    }
+
+    public function scopeWithFilters($query, $filters)
+    {
+        $categoryId = null;
+        if ($filters['category'] ?? false) {
+            $categoryId = Category::where('slug', $filters['category'])->value('id');
+        }
+
+        return $query
+            ->when($filters['exclude_ids'] ?? null, fn($q, $v) => $q->whereNotIn('product_variants.id', $v))
+            ->when($filters['is_new'] ?? null, fn($q, $v) => $q->where('product_variants.created_at', '>=', now()->subDays(60)))
+            ->when($filters['is_featured'] ?? null, fn($q, $v) => $q->where('products.is_featured', $v))
+            ->when($filters['show_in_slider'] ?? null, fn($q, $v) => $q->where('products.show_in_slider', $v))
+            ->when($filters['category'] ?? null, function ($q, $v) use ($categoryId) {
+                $q->where(function ($subQ) use ($categoryId) {
+                    $subQ->where('categories.id', $categoryId)->orWhere('categories.parent_id', $categoryId)
+                        ->orWhere('category_products.category_id', $categoryId);
+                });
+            })
+            ->when($filters['category_id'] ?? null, fn($q, $v) => $q->where('products.category_id', $v)->orWhere('categories.parent_id', $v))
+            ->when($filters['brand_id'] ?? null, fn($q, $v) => $q->where('products.brand_id', $v))
+            ->when($filters['price_min'] ?? null, fn($q, $v) => $q->where('product_variants.price', '>=', $v))
+            ->when($filters['price_max'] ?? null, fn($q, $v) => $q->where('product_variants.price', '<=', $v))
+            ->when($filters['search'] ?? null, fn($q, $v) => $q->where('product_translations.name', 'like', "%$v%"))
+            ->when(!empty($filters['attributes']), fn($q) => $q->filterByAttributes($filters['attributes']))
+            ->when(
+                $filters['offer'] ?? null,
+                fn($q) =>
+                $q->whereHas('offers', fn($q2) => $q2->active()
+                    ->when($filters['offer_name'] ?? null || $filters['offer_id'] ?? null, function ($q3) use ($filters) {
+                        $q3->whereIn('id', Arr::wrap($filters['offer_id'] ?? null))->orWhereIn('name', Arr::wrap($filters['offer_name'] ?? null));
+                    }))
+            )
+            ->when(
+                $filters['tags'] ?? null,
+                fn($q, $v) => $q->whereHas('tags', fn($q2) => $q2->whereIn('name', $v))
+            );
+    }
+
+    public function scopeFilterByAttributes($query, $attributes)
+    {
+        foreach ($attributes as $attributeId => $valueId) {
+            if ($valueId) {
+                $query->whereHas('attributeValues', function ($q) use ($attributeId, $valueId) {
+                    $q->where('attribute_id', $attributeId)
+                        ->where('attribute_values.id', $valueId);
+                });
+            }
+        }
+        return $query;
+    }
+
+    public function scopeApplySorting($query, $sortBy)
+    {
+        return match ($sortBy) {
+            'price_asc' => $query->orderBy('product_variants.price', 'asc'),
+            'price_desc' => $query->orderBy('product_variants.price', 'desc'),
+            'newest' => $query->orderBy('products.created_at', 'desc'),
+            default => $query->orderBy('products.position'),
+        };
+    }
+
+    function getThumbnail()
+    {
+        $attachment = $this->attachments->first();
+
+        if ($attachment) {
+            return get_attachment_url($attachment->file_path);
+        }
+        return asset('assets/images/no-image.jpg'); // Default image if no thumbnail is set
+    }
+}
