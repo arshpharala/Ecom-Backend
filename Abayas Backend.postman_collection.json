@@ -1,0 +1,313 @@
+{
+  "info": {
+    "_postman_id": "6e709896-f21f-4915-86db-447c1f373ce0",
+    "name": "Abayas Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "40339868"
+  },
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_uri}}/products",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_uri}}/products/019f5fd9-c791-710c-ac4e-d6c0f7b4cc20",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "products",
+                "019f5fd9-c791-710c-ac4e-d6c0f7b4cc20"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Relative",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_uri}}/products/019f5fd9-c791-710c-ac4e-d6c0f7b4cc20/relative",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "products",
+                "019f5fd9-c791-710c-ac4e-d6c0f7b4cc20",
+                "relative"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Resources",
+      "item": [
+        {
+          "name": "Banners",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_uri}}/banners",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "banners"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_uri}}/pages/home",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "pages",
+                "home"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Init",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_uri}}/init",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "init"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Addresses",
+          "item": [
+            {
+              "name": "List Addresses",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\" : \"Arshdeep Singh\",\r\n    \"email\" : \"arshdeepjhagra@gmail.com\",\r\n    \"password\" : \"Test@123\",\r\n    \"confirm_password\" : \"Test@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_uri}}/auth/register",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\" : \"arshdeepjhagra@gmail.com\",\r\n    \"password\" : \"Test@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_uri}}/auth/login",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\" : \"arshdeepjhagra@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_uri}}/auth/forgot-password",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "7|hVdhJSg3YKxr5jn8V95MYHwVNkjKTNOzjETVwPOl988b7cdd",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_uri",
+      "value": ""
+    }
+  ]
+}
