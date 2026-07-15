@@ -31,6 +31,26 @@ class CoreApiController extends Controller
             
         $tags = Tag::active()->orderBy('position')->get();
 
+        $settings = [
+            'contact_number' => setting('contact_phone'),
+            'contact_email' => setting('contact_email'),
+            'social_links' => [
+                'facebook' => setting('facebook'),
+                'instagram' => setting('instagram'),
+                'linkedin' => setting('linkedin'),
+                'pinterest' => setting('pinterest'),
+                'twitter' => setting('twitter'),
+            ],
+            'footer_details' => setting('copyright'),
+            'logo' => setting('site_logo') ? asset(setting('site_logo')) : null,
+            'footer_logo' => setting('site_footer_logo') ? asset(setting('site_footer_logo')) : null,
+            'favicon' => setting('site_favicon') ? asset(setting('site_favicon')) : null,
+            'site_name' => setting('site_title'),
+            'address' => setting('address'),
+            'map_link' => setting('show_office_map') ? setting('office_map_embed') : null,
+            'contact_subjects' => setting('contact_subjects') ? array_values(array_filter(array_map('trim', explode("\n", setting('contact_subjects'))))) : [],
+        ];
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -38,6 +58,7 @@ class CoreApiController extends Controller
                 'brands' => $brands,
                 'categories' => $categories,
                 'tags' => $tags,
+                'settings' => $settings,
             ]
         ]);
     }
