@@ -124,6 +124,9 @@ class ProductController extends Controller
                 'locale'      => $locale,
                 'name'        => $request->input("name.$locale"),
                 'description' => $request->input("description.$locale"),
+                'fabric' => $request->input("fabric.$locale"),
+                'design' => $request->input("design.$locale"),
+                'cut' => $request->input("cut.$locale"),
             ]);
         }
 
@@ -194,6 +197,9 @@ class ProductController extends Controller
                 [
                     'name'        => $request->input("name.$locale"),
                     'description' => $request->input("description.$locale"),
+                    'fabric' => $request->input("fabric.$locale"),
+                    'design' => $request->input("design.$locale"),
+                    'cut' => $request->input("cut.$locale"),
                 ]
             );
         }

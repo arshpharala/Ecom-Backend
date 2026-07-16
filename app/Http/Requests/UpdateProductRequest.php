@@ -26,9 +26,16 @@ class UpdateProductRequest extends FormRequest
 
         $nameRules = [];
         $descRules = [];
+        $fabricRules = [];
+        $designRules = [];
+        $cutRules = [];
+
         foreach ($locales as $locale) {
             $nameRules["name.$locale"] = 'required|string|max:255';
             $descRules["description.$locale"] = 'nullable|string';
+            $fabricRules["fabric.$locale"] = 'nullable|string';
+            $designRules["design.$locale"] = 'nullable|string';
+            $cutRules["cut.$locale"] = 'nullable|string';
         }
 
         return array_merge([
@@ -40,6 +47,6 @@ class UpdateProductRequest extends FormRequest
             'is_featured' => 'nullable|boolean',
             'is_new' => 'nullable|boolean',
             'show_in_slider' => 'nullable|boolean'
-        ], $nameRules, $descRules);
+        ], $nameRules, $descRules, $fabricRules, $designRules, $cutRules);
     }
 }

@@ -31,6 +31,9 @@ return new class extends Migration
             $table->string('locale', 5)->index();
             $table->string('name');
             $table->text('description')->nullable();
+            $table->text('fabric')->nullable();
+            $table->text('design')->nullable();
+            $table->text('cut')->nullable();
             $table->unique(['product_id', 'locale']);
         });
 

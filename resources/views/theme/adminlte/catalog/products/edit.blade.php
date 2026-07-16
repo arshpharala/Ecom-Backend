@@ -81,6 +81,19 @@
                 <label for="description_{{ $locale }}">Description ({{ strtoupper($locale) }})</label>
                 <textarea name="description[{{ $locale }}]" class="form-control" rows="3">{{ old("description.$locale", $product->translations->where('locale', $locale)->first()?->description) }}</textarea>
               </div>
+              <div class="form-group">
+              <label for="fabric_{{ $locale }}">Fabric ({{ strtoupper($locale) }})</label>
+              <textarea name="fabric[{{ $locale }}]" class="form-control" rows="3">{{ old("fabric.$locale", $product->translations->where('locale', $locale)->first()?->fabric) }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="design_{{ $locale }}">Design ({{ strtoupper($locale) }})</label>
+              <textarea name="design[{{ $locale }}]" class="form-control" rows="3">{{ old("design.$locale", $product->translations->where('locale', $locale)->first()?->design) }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="cut_{{ $locale }}">Cut ({{ strtoupper($locale) }})</label>
+              <textarea name="cut[{{ $locale }}]" class="form-control" rows="3">{{ old("cut.$locale", $product->translations->where('locale', $locale)->first()?->cut) }}</textarea>
+            </div>
+              </div>
             @endforeach
           </div>
         </div>
