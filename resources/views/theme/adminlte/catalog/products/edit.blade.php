@@ -81,70 +81,69 @@
                 <label for="description_{{ $locale }}">Description ({{ strtoupper($locale) }})</label>
                 <textarea name="description[{{ $locale }}]" class="form-control" rows="3">{{ old("description.$locale", $product->translations->where('locale', $locale)->first()?->description) }}</textarea>
               </div>
+
               <div class="form-group">
-              <label for="fabric_{{ $locale }}">Fabric ({{ strtoupper($locale) }})</label>
-              <textarea name="fabric[{{ $locale }}]" class="form-control" rows="3">{{ old("fabric.$locale", $product->translations->where('locale', $locale)->first()?->fabric) }}</textarea>
-            </div>
-            <div class="form-group">
-              <label for="design_{{ $locale }}">Design ({{ strtoupper($locale) }})</label>
-              <textarea name="design[{{ $locale }}]" class="form-control" rows="3">{{ old("design.$locale", $product->translations->where('locale', $locale)->first()?->design) }}</textarea>
-            </div>
-            <div class="form-group">
-              <label for="cut_{{ $locale }}">Cut ({{ strtoupper($locale) }})</label>
-              <textarea name="cut[{{ $locale }}]" class="form-control" rows="3">{{ old("cut.$locale", $product->translations->where('locale', $locale)->first()?->cut) }}</textarea>
-            </div>
+                <label for="fabric_{{ $locale }}">Fabric ({{ strtoupper($locale) }})</label>
+                <textarea name="fabric[{{ $locale }}]" class="form-control" rows="3">{{ old("fabric.$locale", $product->translations->where('locale', $locale)->first()?->fabric) }}</textarea>
               </div>
-            @endforeach
-          </div>
+              <div class="form-group">
+                <label for="design_{{ $locale }}">Design ({{ strtoupper($locale) }})</label>
+                <textarea name="design[{{ $locale }}]" class="form-control" rows="3">{{ old("design.$locale", $product->translations->where('locale', $locale)->first()?->design) }}</textarea>
+              </div>
+              <div class="form-group">
+                <label for="cut_{{ $locale }}">Cut ({{ strtoupper($locale) }})</label>
+                <textarea name="cut[{{ $locale }}]" class="form-control" rows="3">{{ old("cut.$locale", $product->translations->where('locale', $locale)->first()?->cut) }}</textarea>
+              </div>
+          @endforeach
         </div>
-
-        @include('theme.adminlte.components._metas', ['model' => $product])
-
       </div>
-      <div class="col-md-4">
 
-        <div class="card card-secondary">
-          <div class="card-header">
-            <h3 class="card-title">Options</h3>
+      @include('theme.adminlte.components._metas', ['model' => $product])
+
+    </div>
+    <div class="col-md-4">
+
+      <div class="card card-secondary">
+        <div class="card-header">
+          <h3 class="card-title">Options</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="position">Position</label>
+            <input type="number" name="position" class="form-control" value="{{ old('position', $product->position) }}">
+
           </div>
-          <div class="card-body">
-            <div class="form-group">
-              <label for="position">Position</label>
-              <input type="number" name="position" class="form-control"
-                value="{{ old('position', $product->position) }}">
-
+          <div class="form-group">
+            <div class="custom-control custom-switch mb-2">
+              <input type="checkbox" name="is_active" value="1" class="custom-control-input" id="is_active"
+                {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
+              <label class="custom-control-label" for="is_active">Active</label>
             </div>
-            <div class="form-group">
-              <div class="custom-control custom-switch mb-2">
-                <input type="checkbox" name="is_active" value="1" class="custom-control-input" id="is_active"
-                  {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
-                <label class="custom-control-label" for="is_active">Active</label>
-              </div>
-              <div class="custom-control custom-switch mb-2">
-                <input type="checkbox" name="is_featured" value="1" class="custom-control-input" id="is_featured"
-                  {{ old('is_featured', $product->is_featured) ? 'checked' : '' }}>
-                <label class="custom-control-label" for="is_featured">Featured</label>
-              </div>
-              {{-- <div class="custom-control custom-switch mb-2">
+            <div class="custom-control custom-switch mb-2">
+              <input type="checkbox" name="is_featured" value="1" class="custom-control-input" id="is_featured"
+                {{ old('is_featured', $product->is_featured) ? 'checked' : '' }}>
+              <label class="custom-control-label" for="is_featured">Featured</label>
+            </div>
+            {{-- <div class="custom-control custom-switch mb-2">
                 <input type="checkbox" name="is_new" value="1" class="custom-control-input" id="is_new"
                   {{ old('is_new', $product->is_new) ? 'checked' : '' }}>
                 <label class="custom-control-label" for="is_new">New Arrival</label>
               </div> --}}
-              <div class="custom-control custom-switch mb-2">
-                <input type="checkbox" name="show_in_slider" value="1" class="custom-control-input"
-                  id="show_in_slider" {{ old('show_in_slider', $product->show_in_slider) ? 'checked' : '' }}>
-                <label class="custom-control-label" for="show_in_slider">Show in Slider</label>
-              </div>
+            <div class="custom-control custom-switch mb-2">
+              <input type="checkbox" name="show_in_slider" value="1" class="custom-control-input"
+                id="show_in_slider" {{ old('show_in_slider', $product->show_in_slider) ? 'checked' : '' }}>
+              <label class="custom-control-label" for="show_in_slider">Show in Slider</label>
             </div>
           </div>
         </div>
+      </div>
 
-        <div id="product-variants">
-
-        </div>
-
+      <div id="product-variants">
 
       </div>
+
+
+    </div>
     </div>
     <div class="mt-3">
       <button type="submit" class="btn btn-primary">@lang('crud.update')</button>
