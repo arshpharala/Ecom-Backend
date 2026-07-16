@@ -119,11 +119,11 @@
                 {{ old('is_active', $product->is_active) ? 'checked' : '' }}>
               <label class="custom-control-label" for="is_active">Active</label>
             </div>
-            <div class="custom-control custom-switch mb-2">
+            {{-- <div class="custom-control custom-switch mb-2">
               <input type="checkbox" name="is_featured" value="1" class="custom-control-input" id="is_featured"
                 {{ old('is_featured', $product->is_featured) ? 'checked' : '' }}>
               <label class="custom-control-label" for="is_featured">Featured</label>
-            </div>
+            </div> --}}
             {{-- <div class="custom-control custom-switch mb-2">
                 <input type="checkbox" name="is_new" value="1" class="custom-control-input" id="is_new"
                   {{ old('is_new', $product->is_new) ? 'checked' : '' }}>

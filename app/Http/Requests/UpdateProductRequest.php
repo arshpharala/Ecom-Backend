@@ -44,8 +44,8 @@ class UpdateProductRequest extends FormRequest
             'brand_id' => 'nullable|exists:brands,id',
             'position' => 'nullable|integer',
             'is_active' => 'nullable|boolean',
-            'is_featured' => 'nullable|boolean',
-            'is_new' => 'nullable|boolean',
+            // 'is_featured' => 'nullable|boolean',
+            // 'is_new' => 'nullable|boolean',
             'show_in_slider' => 'nullable|boolean'
         ], $nameRules, $descRules, $fabricRules, $designRules, $cutRules);
     }

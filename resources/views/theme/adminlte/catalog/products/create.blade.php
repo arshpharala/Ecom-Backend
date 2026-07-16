@@ -75,14 +75,14 @@
               <input type="checkbox" name="is_active" value="1" class="custom-control-input" id="is_active">
               <label class="custom-control-label" for="is_active">Active</label>
             </div>
-            <div class="custom-control custom-switch mb-2">
+            {{-- <div class="custom-control custom-switch mb-2">
               <input type="checkbox" name="is_featured" value="1" class="custom-control-input" id="is_featured">
               <label class="custom-control-label" for="is_featured">Featured</label>
             </div>
             <div class="custom-control custom-switch mb-2">
               <input type="checkbox" name="is_new" value="1" class="custom-control-input" id="is_new">
               <label class="custom-control-label" for="is_new">New Arrival</label>
-            </div>
+            </div> --}}
             <div class="custom-control custom-switch mb-2">
               <input type="checkbox" name="show_in_slider" value="1" class="custom-control-input"
                 id="show_in_slider">

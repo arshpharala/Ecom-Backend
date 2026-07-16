@@ -113,8 +113,8 @@ class ProductController extends Controller
             'brand_id'    => $request->brand_id,
             'position'    => $request->position ?? 0,
             'is_active'        => $request->boolean('is_active'),
-            'is_featured'      => $request->boolean('is_featured'),
-            'is_new'           => $request->boolean('is_new'),
+            // 'is_featured'      => $request->boolean('is_featured'),
+            // 'is_new'           => $request->boolean('is_new'),
             'show_in_slider'   => $request->boolean('show_in_slider'),
         ]);
 
@@ -185,8 +185,8 @@ class ProductController extends Controller
             'brand_id'    => $request->brand_id,
             'position'    => $request->position ?? 0,
             'is_active'        => $request->boolean('is_active'),
-            'is_featured'      => $request->boolean('is_featured'),
-            'is_new'           => $request->boolean('is_new'),
+            // 'is_featured'      => $request->boolean('is_featured'),
+            // 'is_new'           => $request->boolean('is_new'),
             'show_in_slider'   => $request->boolean('show_in_slider'),
         ]);
 
