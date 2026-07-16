@@ -119,6 +119,32 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Enquiry",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\" : \"Arshdeep Singh\",\r\n    \"email\" : \"arshdeepjhagra@gmail.com\",\r\n    \"phone\": \"+971506810715\",\r\n    \"message\" : \"Hi This is a test enquiry\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_uri}}/enquiry",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "enquiry"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
