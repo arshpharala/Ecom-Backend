@@ -183,11 +183,11 @@ class ProductVariant extends Model
 
     public function scopeFilterByAttributes($query, $attributes)
     {
-        foreach ($attributes as $attributeId => $valueId) {
-            if ($valueId) {
-                $query->whereHas('attributeValues', function ($q) use ($attributeId, $valueId) {
+        foreach ($attributes as $attributeId => $valueIds) {
+            if ($valueIds) {
+                $query->whereHas('attributeValues', function ($q) use ($attributeId, $valueIds) {
                     $q->where('attribute_id', $attributeId)
-                        ->where('attribute_values.id', $valueId);
+                        ->whereIn('attribute_values.id', Arr::wrap($valueIds));
                 });
             }
         }
