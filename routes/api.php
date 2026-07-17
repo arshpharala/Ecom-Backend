@@ -7,6 +7,7 @@ use App\Http\Controllers\API\V1\Auth\AuthController;
 use App\Http\Controllers\API\V1\Auth\EmailVerificationController;
 use App\Http\Controllers\API\V1\Auth\PasswordResetController;
 use App\Http\Controllers\API\V1\Auth\SsoController;
+use App\Http\Controllers\API\V1\AttributeApiController;
 use App\Http\Controllers\API\V1\BannerApiController;
 use App\Http\Controllers\API\V1\ContactApiController;
 use App\Http\Controllers\API\V1\OrderApiController;
@@ -35,6 +36,7 @@ Route::group(
     Route::apiResource('banners', BannerApiController::class);
     Route::apiResource('products', ProductApiController::class);
     Route::apiResource('pages', PageApiController::class);
+    Route::get('attributes', [AttributeApiController::class, 'index']);
 
     Route::post('enquiry', [ContactApiController::class, 'store']);
 
