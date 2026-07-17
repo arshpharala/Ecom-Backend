@@ -159,7 +159,9 @@ class ProductVariant extends Model
                         ->orWhere('category_products.category_id', $categoryId);
                 });
             })
-            ->when($filters['category_id'] ?? null, fn($q, $v) => $q->whereIn('products.category_id', $v)->orWhereIn('categories.parent_id', $v))
+            ->when($filters['category_id'] ?? null, fn($q, $v) => $q->where(function($subQ) use ($v) {
+                $subQ->whereIn('products.category_id', $v)->orWhereIn('categories.parent_id', $v);
+            }))
             ->when($filters['brand_id'] ?? null, fn($q, $v) => $q->where('products.brand_id', $v))
             ->when($filters['price_min'] ?? null, fn($q, $v) => $q->where('product_variants.price', '>=', $v))
             ->when($filters['price_max'] ?? null, fn($q, $v) => $q->where('product_variants.price', '<=', $v))
