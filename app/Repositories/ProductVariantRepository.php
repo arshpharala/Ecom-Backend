@@ -52,8 +52,8 @@ class ProductVariantRepository
             ->withSelection()
             ->withActiveProducts();
 
-            
-        if ($filters['primary_only']) {
+
+        if ($filters['primary_only'] ?? false) {
             $query->primary();
         }
 
