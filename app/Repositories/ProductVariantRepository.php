@@ -47,7 +47,7 @@ class ProductVariantRepository
             ->with(['offers' => function ($query) {
                 $query->active();
             }])
-            ->primary()
+            // ->primary()
             ->withSelection()
             ->withActiveProducts();
 
@@ -55,7 +55,8 @@ class ProductVariantRepository
             $query->whereHas('wishlists', fn($q) => $q->where('user_id', auth()->id()));
         }
 
-        $query->groupBy('product_variants.id'); // Required to avoid duplicate entries due to joins
+        $query->groupBy('products.id'); // Required to avoid duplicate entries due to joins
+        // $query->groupBy('product_variants.id'); // Required to avoid duplicate entries due to joins
 
         if (! empty($filters['include_ids'])) {
             $includeIds = array_values(array_unique($filters['include_ids']));
