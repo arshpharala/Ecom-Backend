@@ -31,6 +31,7 @@ class ProductVariantRepository
             'sort_by',
             'exclude_ids',
             'include_ids',
+            'primary_only'
         ]);
 
         $filters['exclude_ids'] = $this->normalizeIdFilter($filters['exclude_ids'] ?? []);
@@ -50,6 +51,11 @@ class ProductVariantRepository
             // ->primary()
             ->withSelection()
             ->withActiveProducts();
+
+            
+        if ($filters['primary_only']) {
+            $query->primary();
+        }
 
         if (auth()->check() && ! empty($filters['is_wishlisted'])) {
             $query->whereHas('wishlists', fn($q) => $q->where('user_id', auth()->id()));
@@ -326,5 +332,4 @@ class ProductVariantRepository
 
         return $selected;
     }
-
 }
