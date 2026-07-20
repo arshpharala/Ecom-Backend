@@ -30,7 +30,7 @@ class AuthController extends Controller
         ]);
 
         // Send email verification notification
-        $user->sendEmailVerificationNotification();
+        // $user->sendEmailVerificationNotification();
 
         // Create Sanctum token
         $token = $user->createToken('auth-token')->plainTextToken;
