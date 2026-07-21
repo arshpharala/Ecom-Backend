@@ -14,6 +14,8 @@ use App\Http\Controllers\API\V1\OrderApiController;
 use App\Http\Controllers\API\V1\PageApiController;
 use App\Http\Controllers\API\V1\ProductApiController;
 use App\Http\Controllers\API\V1\ProfileApiController;
+use App\Http\Controllers\API\V1\CartApiController;
+use App\Http\Controllers\API\V1\CheckoutApiController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -39,6 +41,23 @@ Route::group(
     Route::get('attributes', [AttributeApiController::class, 'index']);
 
     Route::post('enquiry', [ContactApiController::class, 'store']);
+
+    // Cart & Checkout Routes (Require Session for CartService)
+    Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->group(function () {
+        Route::prefix('cart')->group(function () {
+            Route::get('/', [CartApiController::class, 'index']);
+            Route::post('/items', [CartApiController::class, 'addItem']);
+            Route::put('/items/{itemId}', [CartApiController::class, 'updateItem']);
+            Route::delete('/items/{itemId}', [CartApiController::class, 'removeItem']);
+            Route::delete('/', [CartApiController::class, 'clearCart']);
+        });
+
+        Route::prefix('checkout')->group(function () {
+            Route::post('/', [CheckoutApiController::class, 'checkout']);
+            Route::post('/coupon/apply', [CheckoutApiController::class, 'applyCoupon']);
+            Route::post('/coupon/remove', [CheckoutApiController::class, 'removeCoupon']);
+        });
+    });
 
     /*
     |----------------------------------------------------------------------

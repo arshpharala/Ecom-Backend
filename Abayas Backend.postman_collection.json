@@ -21,6 +21,18 @@
               ],
               "path": [
                 "products"
+              ],
+              "query": [
+                {
+                  "key": "category_id[]",
+                  "value": "019f6a3d-1812-708f-9d55-ce9c7098840d",
+                  "disabled": true
+                },
+                {
+                  "key": "category_id[]",
+                  "value": "019f5b52-832c-7035-a25f-bcbc4cf40e0a",
+                  "disabled": true
+                }
               ]
             }
           },
@@ -62,6 +74,42 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Related Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_uri}}/products?exclude_ids[]=019f5b55-11de-7102-a916-2371853cbd6e&category_id=019f5b52-832c-7035-a25f-bcbc4cf40e0a",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "exclude_ids[]",
+                  "value": "019f5b55-11de-7102-a916-2371853cbd6e"
+                },
+                {
+                  "key": "category_id",
+                  "value": "019f5b52-832c-7035-a25f-bcbc4cf40e0a",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Attributes",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
         }
       ]
     },
@@ -91,13 +139,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_uri}}/pages/home",
+              "raw": "{{base_uri}}/pages/about-us",
               "host": [
                 "{{base_uri}}"
               ],
               "path": [
                 "pages",
-                "home"
+                "about-us"
               ]
             }
           },
@@ -127,7 +175,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\" : \"Arshdeep Singh\",\r\n    \"email\" : \"arshdeepjhagra@gmail.com\",\r\n    \"phone\": \"+971506810715\",\r\n    \"message\" : \"Hi This is a test enquiry\"\r\n}",
+              "raw": "{\r\n    \"name\": \"Arshdeep Singh\",\r\n    \"email\": \"arshdeepjhagra@gmail.com\",\r\n    \"phone\": \"+971506810715\",\r\n    \"message\": \"Hi This is a test enquiry\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -161,6 +209,33 @@
                 "header": []
               },
               "response": []
+            },
+            {
+              "name": "Post",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"name\": \"Arshdeep Singh\",\r\n  \"phone\": \"+971501234567\",\r\n  \"country_id\": 1,\r\n  \"province_id\": 2,\r\n  \"city_id\": 5,\r\n  \"area_id\": 10,\r\n  \"address\": \"Building 12, Apartment 504, JVC\",\r\n  \"landmark\": \"Near Circle Mall\",\r\n  \"map_latitude\": 25.0657,\r\n  \"map_longitude\": 55.2115,\r\n  \"map_url\": \"https://maps.google.com/?q=25.0657,55.2115\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_uri}}/auth/addresses",
+                  "host": [
+                    "{{base_uri}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "addresses"
+                  ]
+                }
+              },
+              "response": []
             }
           ]
         },
@@ -171,7 +246,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\" : \"Arshdeep Singh\",\r\n    \"email\" : \"arshdeepjhagra@gmail.com\",\r\n    \"password\" : \"Test@123\",\r\n    \"confirm_password\" : \"Test@123\"\r\n}",
+              "raw": "{\r\n    \"name\" : \"Arshdeep Singh\",\r\n    \"email\" : \"arshdeepjhagra1@gmail.com\",\r\n    \"password\" : \"Testing@123\",\r\n    \"confirm_password\" : \"Testing@123\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -198,7 +273,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\" : \"arshdeepjhagra@gmail.com\",\r\n    \"password\" : \"Test@123\"\r\n}",
+              "raw": "{\r\n    \"email\" : \"arshdeepjhagra@gmail.com\",\r\n    \"password\" : \"Test@12345\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -221,16 +296,56 @@
         {
           "name": "Logout",
           "request": {
-            "method": "GET",
-            "header": []
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "4|r8LImGlsyvEPQDpmDDSOSu68Pg702UzkY2M911xT64795da4",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_uri}}/auth/logout",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
           },
           "response": []
         },
         {
           "name": "Me",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "5|IPaIeFYDKu1UiN6UtX63DkoAakxXjlpp7ljsX7Hc6e0b3aa5",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": {
+              "raw": "{{base_uri}}/auth/me",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
           },
           "response": []
         },
@@ -264,8 +379,27 @@
         {
           "name": "Reset Password",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"token\" : \"58910feb671ffc021daad755552d302ef36d2d3ae3eb62445f712ea29da77a39\",\r\n    \"email\" : \"arshdeepjhagra@gmail.com\",\r\n    \"password\" : \"Test@12345\",\r\n    \"password_confirmation\" : \"Test@12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_uri}}/auth/reset-password",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            }
           },
           "response": []
         }
