@@ -13,6 +13,7 @@ class CartItem extends Model
 
     public $incrementing = false;
     protected $keyType = 'string';
+    public $timestamps = false;
 
     protected $fillable = [
         'cart_id',

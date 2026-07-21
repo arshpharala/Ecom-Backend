@@ -3,13 +3,70 @@
 namespace App\Services;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Cart\Coupon;
+use App\Models\Cart\Cart;
 use App\Services\CouponService;
 
 class CartService
 {
-    protected $sessionKey = 'cart';
+    protected function getCartModel()
+    {
+        $userId = auth('sanctum')->id();
+        $sessionId = request()->header('X-Cart-Session-Id');
+        
+        if (!$sessionId && !$userId) {
+            $sessionId = request()->ip(); // Fallback if neither is provided
+        }
+
+        $userCart = null;
+        $guestCart = null;
+
+        if ($userId) {
+            $userCart = Cart::where('user_id', $userId)->first();
+        }
+
+        if ($sessionId) {
+            $guestCart = Cart::where('session_id', $sessionId)->whereNull('user_id')->first();
+        }
+
+        // Scenario 1: User just logged in, has a guest cart, and NO existing user cart
+        if ($userId && $guestCart && !$userCart) {
+            $guestCart->update(['user_id' => $userId]);
+            return $guestCart;
+        }
+
+        // Scenario 2: User logged in, has a guest cart, AND has an existing user cart (Merge carts!)
+        if ($userId && $guestCart && $userCart) {
+            foreach ($guestCart->items as $guestItem) {
+                $existingItem = $userCart->items()->where('product_variant_id', $guestItem->product_variant_id)->first();
+                if ($existingItem) {
+                    $existingItem->quantity += $guestItem->quantity;
+                    $existingItem->save();
+                } else {
+                    $guestItem->update(['cart_id' => $userCart->id]);
+                }
+            }
+            $guestCart->delete(); // Delete the now-empty guest cart
+            return $userCart;
+        }
+
+        // Scenario 3: Logged in user with existing cart, no guest cart
+        if ($userCart) {
+            return $userCart;
+        }
+
+        // Scenario 4: Guest user with existing guest cart
+        if (!$userId && $guestCart) {
+            return $guestCart;
+        }
+
+        // Scenario 5: Brand new cart
+        return Cart::create([
+            'user_id' => $userId,
+            'session_id' => $sessionId,
+        ]);
+    }
 
     public function get(): Collection
     {
@@ -36,10 +93,10 @@ class CartService
 
     function getTax(): float
     {
-        $subTotal      = $this->getSubTotal(); // 500
-        $discount      = $this->getDiscount(); // 10% of 500 = 50
-        $discountedSub = max($subTotal - $discount, 0); // 500 - 50 = 450
-        $tax           = $this->getTaxOnAmount($discountedSub); // 5% of 450 = 22.5
+        $subTotal      = $this->getSubTotal();
+        $discount      = $this->getDiscount();
+        $discountedSub = max($subTotal - $discount, 0);
+        $tax           = $this->getTaxOnAmount($discountedSub);
 
         return (float) $tax;
     }
@@ -57,7 +114,7 @@ class CartService
 
     public function getTaxOnAmount(float $amount): float
     {
-        $taxRate = setting('tax_rate', 5); // Assume 5% default
+        $taxRate = setting('tax_rate', 5);
         return round($amount * ($taxRate / 100), 2);
     }
 
@@ -70,7 +127,44 @@ class CartService
 
     public function getItems(): array
     {
-        return Session::get($this->sessionKey, []);
+        $cart = $this->getCartModel();
+        
+        $cart->load([
+            'items.variant.product.translation',
+            'items.variant.attributeValues.attribute',
+            'items.variant.attachments'
+        ]);
+
+        $items = [];
+        
+        foreach($cart->items as $dbItem) {
+            $variant = $dbItem->variant;
+            $productName = $variant->product->translation->name ?? $variant->product->slug ?? 'Unknown Product';
+            $thumbnail = $variant->getThumbnail();
+            
+            $attributes = [];
+            if ($variant->attributeValues) {
+                foreach ($variant->attributeValues as $attrVal) {
+                    $attributes[] = [
+                        'name' => $attrVal->attribute->name ?? '',
+                        'value' => $attrVal->value ?? ''
+                    ];
+                }
+            }
+
+            $items[$dbItem->product_variant_id] = [
+                'qty' => $dbItem->quantity,
+                'price' => $dbItem->price,
+                'subtotal' => $dbItem->quantity * $dbItem->price,
+                'name' => $productName,
+                'thumbnail' => $thumbnail,
+                'attributes' => $attributes,
+                'sku' => $variant->sku,
+                'options' => [],
+            ];
+        }
+        
+        return $items;
     }
 
     public function getItem(string $variantId): ?array
@@ -80,57 +174,49 @@ class CartService
 
     public function add(string $variantId, int $qty = 1, float $price = null, array $options = []): void
     {
-        $cart = $this->getItems();
-
-        if (isset($cart[$variantId])) {
-            $cart[$variantId]['qty'] += $qty;
+        $cart = $this->getCartModel();
+        $item = $cart->items()->where('product_variant_id', $variantId)->first();
+        
+        if ($item) {
+            $item->quantity += $qty;
+            $item->save();
         } else {
-            $cart[$variantId] = [
-                'qty'     => $qty,
-                'price'   => $price,
-                'options' => $options,
-            ];
+            $cart->items()->create([
+                'product_variant_id' => $variantId,
+                'quantity' => $qty,
+                'price' => $price,
+            ]);
         }
-
-        $cart[$variantId]['subtotal'] = $cart[$variantId]['price'] * $cart[$variantId]['qty'];
-
-        $this->save($cart);
     }
 
     public function update(string $variantId, int $qty): void
     {
-        $cart = $this->getItems();
-
-        if (isset($cart[$variantId])) {
-            $cart[$variantId]['qty'] = $qty;
-            $cart[$variantId]['subtotal'] = $cart[$variantId]['price'] * $qty;
-            $this->save($cart);
+        $cart = $this->getCartModel();
+        $item = $cart->items()->where('product_variant_id', $variantId)->first();
+        
+        if ($item) {
+            $item->quantity = $qty;
+            $item->save();
         }
     }
 
     public function remove(string $variantId): void
     {
-        $cart = $this->getItems();
-        unset($cart[$variantId]);
-        $this->save($cart);
+        $cart = $this->getCartModel();
+        $cart->items()->where('product_variant_id', $variantId)->delete();
     }
 
     public function clear(): void
     {
-        Session::forget($this->sessionKey);
+        $cart = $this->getCartModel();
+        $cart->items()->delete();
         $this->removeCoupon();
-    }
-
-    protected function save(array $cart): void
-    {
-        Session::put($this->sessionKey, $cart);
     }
 
     public function getItemCount(): int
     {
         return array_sum(array_column($this->getItems(), 'qty'));
     }
-
 
     public function applyCoupon(string $code, $user = null): array
     {
@@ -141,13 +227,14 @@ class CartService
         $result = app(CouponService::class)->applyCoupon($code, $cartTotal, $user, $variantIds);
 
         if ($result['success']) {
-            Session::put('applied_coupon', [
+            $cart = $this->getCartModel();
+            Cache::put('cart_coupon_'.$cart->id, [
                 'code'      => $result['coupon']->code,
                 'id'        => $result['coupon']->id,
                 'discount'  => $result['discount'],
                 'type'      => $result['coupon']->type,
                 'value'     => $result['coupon']->value,
-            ]);
+            ], now()->addDays(7));
         }
 
         return $result;
@@ -155,17 +242,20 @@ class CartService
 
     public function removeCoupon(): void
     {
-        Session::forget('applied_coupon');
+        $cart = $this->getCartModel();
+        Cache::forget('cart_coupon_'.$cart->id);
     }
 
     public function getCoupon(): ?array
     {
-        return Session::get('applied_coupon');
+        $cart = $this->getCartModel();
+        return Cache::get('cart_coupon_'.$cart->id);
     }
 
     public function hasCoupon(): bool
     {
-        return Session::has('applied_coupon');
+        $cart = $this->getCartModel();
+        return Cache::has('cart_coupon_'.$cart->id);
     }
 
     public function refresh(): ?string
@@ -175,7 +265,7 @@ class CartService
 
         if ($this->hasCoupon()) {
             $couponData = $this->getCoupon();
-            $coupon = \App\Models\Cart\Coupon::find($couponData['id']);
+            $coupon = Coupon::find($couponData['id']);
 
             if (!$coupon) {
                 $this->removeCoupon();

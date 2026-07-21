@@ -42,21 +42,20 @@ Route::group(
 
     Route::post('enquiry', [ContactApiController::class, 'store']);
 
-    // Cart & Checkout Routes (Require Session for CartService)
-    Route::middleware([\Illuminate\Session\Middleware\StartSession::class])->group(function () {
-        Route::prefix('cart')->group(function () {
-            Route::get('/', [CartApiController::class, 'index']);
-            Route::post('/items', [CartApiController::class, 'addItem']);
-            Route::put('/items/{itemId}', [CartApiController::class, 'updateItem']);
-            Route::delete('/items/{itemId}', [CartApiController::class, 'removeItem']);
-            Route::delete('/', [CartApiController::class, 'clearCart']);
-        });
+    // Cart Routes
+    Route::prefix('cart')->group(function () {
+        Route::get('/', [CartApiController::class, 'index']);
+        Route::post('/items', [CartApiController::class, 'addItem']);
+        Route::put('/items/{itemId}', [CartApiController::class, 'updateItem']);
+        Route::delete('/items/{itemId}', [CartApiController::class, 'removeItem']);
+        Route::delete('/', [CartApiController::class, 'clearCart']);
+    });
 
-        Route::prefix('checkout')->group(function () {
-            Route::post('/', [CheckoutApiController::class, 'checkout']);
-            Route::post('/coupon/apply', [CheckoutApiController::class, 'applyCoupon']);
-            Route::post('/coupon/remove', [CheckoutApiController::class, 'removeCoupon']);
-        });
+    // Checkout Routes
+    Route::prefix('checkout')->group(function () {
+        Route::post('/', [CheckoutApiController::class, 'checkout']);
+        Route::post('/coupon/apply', [CheckoutApiController::class, 'applyCoupon']);
+        Route::post('/coupon/remove', [CheckoutApiController::class, 'removeCoupon']);
     });
 
     /*
