@@ -140,7 +140,7 @@ class CartService
         foreach($cart->items as $dbItem) {
             $variant = $dbItem->variant;
             $productName = $variant->product->translation->name ?? $variant->product->slug ?? 'Unknown Product';
-            $thumbnail = $variant->getThumbnail();
+            $image = $variant->getThumbnail();
             
             $attributes = [];
             if ($variant->attributeValues) {
@@ -157,7 +157,7 @@ class CartService
                 'price' => $dbItem->price,
                 'subtotal' => $dbItem->quantity * $dbItem->price,
                 'name' => $productName,
-                'thumbnail' => $thumbnail,
+                'image' => $image,
                 'attributes' => $attributes,
                 'sku' => $variant->sku,
                 'options' => [],
