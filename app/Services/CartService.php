@@ -161,6 +161,7 @@ class CartService
                 'image' => $image,
                 'attributes' => $attributes,
                 'sku' => $variant->sku,
+                'stock' => $variant->stock,
                 'options' => [],
             ];
         }
