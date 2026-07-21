@@ -82,6 +82,7 @@ class CartService
             'discount'  => $discount,
             'tax'       => $tax,
             'total'     => $total,
+            'currency'  => active_currency(),
             'subTotal_with_currency'  => price_format(active_currency(), $subTotal),
             'discount_with_currency'  => price_format(active_currency(), $discount),
             'tax_with_currency'       => price_format(active_currency(), $tax),
