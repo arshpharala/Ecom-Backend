@@ -32,6 +32,13 @@ class CartApiController extends Controller
 
         $variant = ProductVariant::findOrFail($request->product_variant_id);
 
+        if (!setting('allow_negative_purchase', false) && (!$variant->stock || $variant->stock < $request->quantity)) {
+            return [
+                'success' => false,
+                'message' => 'Insufficient stock available.'
+            ];
+        }
+
         $this->cartService->add(
             $variant->id,
             $request->quantity,
@@ -49,6 +56,16 @@ class CartApiController extends Controller
         $request->validate([
             'quantity' => 'required|integer|min:1',
         ]);
+
+        $variant = ProductVariant::findOrFail($itemId);
+
+
+        if (!setting('allow_negative_purchase', false) && (!$variant->stock || $variant->stock < $request->quantity)) {
+            return [
+                'success' => false,
+                'message' => 'Insufficient stock available.'
+            ];
+        }
 
         $this->cartService->update($itemId, $request->quantity);
 
