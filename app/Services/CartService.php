@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Cart\Coupon;
 use App\Models\Cart\Cart;
+use App\Models\Catalog\ProductVariant;
 use App\Services\CouponService;
 
 class CartService
@@ -179,9 +180,11 @@ class CartService
         $cart = $this->getCartModel();
         $item = $cart->items()->where('product_variant_id', $variantId)->first();
 
+        $variant = ProductVariant::findOrFail($variantId);
+
         $newQty = $item ? $item->quantity + $qty : $qty;
 
-        if (!setting('allow_negative_purchase', false) && (!$item->variant->stock || $item->variant->stock < $newQty)) {
+        if (!setting('allow_negative_purchase', false) && (!$variant->stock || $variant->stock < $newQty)) {
             throw new \Exception('Insufficient stock available.');
         }
 
@@ -202,7 +205,9 @@ class CartService
         $cart = $this->getCartModel();
         $item = $cart->items()->where('product_variant_id', $variantId)->first();
 
-        if (!setting('allow_negative_purchase', false) && (!$item->stock || $item->stock < $qty)) {
+        $variant = ProductVariant::findOrFail($variantId);
+
+        if (!setting('allow_negative_purchase', false) && (!$variant->stock || $variant->stock < $qty)) {
             throw new \Exception('Insufficient stock available.');
         }
 
