@@ -181,7 +181,7 @@ class CartService
 
         $newQty = $item ? $item->quantity + $qty : $qty;
 
-        if (!setting('allow_negative_purchase', false) && (!$item->stock || $item->stock < $newQty)) {
+        if (!setting('allow_negative_purchase', false) && (!$item->variant->stock || $item->variant->stock < $newQty)) {
             throw new \Exception('Insufficient stock available.');
         }
 
