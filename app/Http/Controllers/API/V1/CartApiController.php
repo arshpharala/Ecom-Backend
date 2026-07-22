@@ -33,10 +33,11 @@ class CartApiController extends Controller
         $variant = ProductVariant::findOrFail($request->product_variant_id);
 
         if (!setting('allow_negative_purchase', false) && (!$variant->stock || $variant->stock < $request->quantity)) {
-            return [
+
+            return response()->json([
                 'success' => false,
                 'message' => 'Insufficient stock available.'
-            ];
+            ], 422);
         }
 
         $this->cartService->add(
@@ -46,6 +47,7 @@ class CartApiController extends Controller
         );
 
         return response()->json([
+            'success' => true,
             'message' => 'Item added to cart',
             'cart' => $this->cartService->get()
         ]);
@@ -61,15 +63,17 @@ class CartApiController extends Controller
 
 
         if (!setting('allow_negative_purchase', false) && (!$variant->stock || $variant->stock < $request->quantity)) {
-            return [
+
+            return response()->json([
                 'success' => false,
                 'message' => 'Insufficient stock available.'
-            ];
+            ], 422);
         }
 
         $this->cartService->update($itemId, $request->quantity);
 
         return response()->json([
+            'success' => true,
             'message' => 'Cart updated',
             'cart' => $this->cartService->get()
         ]);
