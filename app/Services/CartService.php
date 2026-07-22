@@ -14,7 +14,7 @@ class CartService
     {
         $userId = auth('sanctum')->id();
         $sessionId = request()->header('X-Cart-Session-Id');
-        
+
         if (!$sessionId && !$userId) {
             $sessionId = request()->ip(); // Fallback if neither is provided
         }
@@ -129,7 +129,7 @@ class CartService
     public function getItems(): array
     {
         $cart = $this->getCartModel();
-        
+
         $cart->load([
             'items.variant.product.translation',
             'items.variant.attributeValues.attribute',
@@ -137,12 +137,12 @@ class CartService
         ]);
 
         $items = [];
-        
-        foreach($cart->items as $dbItem) {
+
+        foreach ($cart->items as $dbItem) {
             $variant = $dbItem->variant;
             $productName = $variant->product->translation->name ?? $variant->product->slug ?? 'Unknown Product';
             $image = $variant->getThumbnail();
-            
+
             $attributes = [];
             if ($variant->attributeValues) {
                 foreach ($variant->attributeValues as $attrVal) {
@@ -165,7 +165,7 @@ class CartService
                 'options' => [],
             ];
         }
-        
+
         return $items;
     }
 
@@ -178,9 +178,15 @@ class CartService
     {
         $cart = $this->getCartModel();
         $item = $cart->items()->where('product_variant_id', $variantId)->first();
-        
+
+        $newQty = $item ? $item->quantity + $qty : $qty;
+
+        if (!setting('allow_negative_purchase', false) && (!$item->stock || $item->stock < $newQty)) {
+            throw new \Exception('Insufficient stock available.');
+        }
+
         if ($item) {
-            $item->quantity += $qty;
+            $item->quantity = $newQty;
             $item->save();
         } else {
             $cart->items()->create([
@@ -195,7 +201,11 @@ class CartService
     {
         $cart = $this->getCartModel();
         $item = $cart->items()->where('product_variant_id', $variantId)->first();
-        
+
+        if (!setting('allow_negative_purchase', false) && (!$item->stock || $item->stock < $qty)) {
+            throw new \Exception('Insufficient stock available.');
+        }
+
         if ($item) {
             $item->quantity = $qty;
             $item->save();
@@ -230,7 +240,7 @@ class CartService
 
         if ($result['success']) {
             $cart = $this->getCartModel();
-            Cache::put('cart_coupon_'.$cart->id, [
+            Cache::put('cart_coupon_' . $cart->id, [
                 'code'      => $result['coupon']->code,
                 'id'        => $result['coupon']->id,
                 'discount'  => $result['discount'],
@@ -245,19 +255,19 @@ class CartService
     public function removeCoupon(): void
     {
         $cart = $this->getCartModel();
-        Cache::forget('cart_coupon_'.$cart->id);
+        Cache::forget('cart_coupon_' . $cart->id);
     }
 
     public function getCoupon(): ?array
     {
         $cart = $this->getCartModel();
-        return Cache::get('cart_coupon_'.$cart->id);
+        return Cache::get('cart_coupon_' . $cart->id);
     }
 
     public function hasCoupon(): bool
     {
         $cart = $this->getCartModel();
-        return Cache::has('cart_coupon_'.$cart->id);
+        return Cache::has('cart_coupon_' . $cart->id);
     }
 
     public function refresh(): ?string
