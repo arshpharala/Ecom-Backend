@@ -70,7 +70,7 @@ class CheckoutApiController extends Controller
             $rules = array_merge($rules, [
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|max:255',
-                'phone_number' => 'required|string|max:20',
+                'phone' => 'required|string|max:20',
                 'address' => 'required|string',
                 'city_id' => 'required|integer',
                 'province_id' => 'required|integer',
@@ -111,7 +111,7 @@ class CheckoutApiController extends Controller
                     'city_id' => $validated['city_id'],
                     'province_id' => $validated['province_id'],
                     'country_id' => $validated['country_id'],
-                    'phone_number' => $validated['phone_number'],
+                    'phone' => $validated['phone'],
                     'is_default' => 1
                 ]);
 
