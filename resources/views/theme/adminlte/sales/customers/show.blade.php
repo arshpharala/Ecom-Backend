@@ -112,7 +112,7 @@
         <tbody>
           @forelse($user->orders as $order)
             <tr>
-              <td>{{ $order->order_number }}</td>
+              <td>{{ $order->reference_number }}</td>
               <td>{{ number_format($order->total, 2) }} {{ active_currency() }}</td>
               <td>
                 <span class="badge bg-{{ $order->payment_status === 'paid' ? 'success' : 'warning' }}">
