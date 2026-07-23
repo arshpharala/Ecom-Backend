@@ -123,6 +123,7 @@ class CheckoutApiController extends Controller
             }
 
             $order = Order::create([
+                'order_number' => Str::uuid(),
                 'user_id' => $user->id,
                 'billing_address_id' => $billingAddressId,
                 'shipping_address_id' => $shippingAddressId,
@@ -161,7 +162,7 @@ class CheckoutApiController extends Controller
 
             return response()->json([
                 'message' => 'Order placed successfully',
-                'order' => $order->fresh(['lineItems.variant.product'])
+                'order' => $order->fresh(['lineItems.productVariant.product'])
             ]);
 
         } catch (\Exception $e) {
