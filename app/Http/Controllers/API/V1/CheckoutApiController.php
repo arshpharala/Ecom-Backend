@@ -131,10 +131,10 @@ class CheckoutApiController extends Controller
                 'payment_method' => $validated['payment_method'],
                 'payment_status' => 'pending',
                 'status' => 'placed',
+                'currency_id' => 1,
                 'sub_total' => $cartData['subTotal'],
                 'tax' => $cartData['tax'],
                 'total' => $cartData['total'],
-                // 'currency_id' => ..., // if currency is required
             ]);
 
             foreach ($cartData['items'] as $variantId => $item) {
