@@ -171,9 +171,27 @@ class OrderController extends Controller
         if ($order->isDraft()) {
             return back()->with('error', 'Cannot send notification for an incomplete order.');
         }
-        
+
         $order->sendAdminNotification();
 
         return back()->with('success', 'Admin notification email sent successfully.');
+    }
+
+    public function previewReceipt(Order $order)
+    {
+        $order->loadMissing([
+            'lineItems.productVariant.attributeValues.attribute',
+            'lineItems.productVariant.product.translation',
+            'currency',
+            'billingAddress',
+            'shippingAddress',
+            'couponUsages',
+        ]);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdfs.order-receipt', [
+            'order' => $order,
+        ]);
+
+        return $pdf->stream("Receipt-{$order->reference_number}.pdf");
     }
 }

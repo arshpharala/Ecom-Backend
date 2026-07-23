@@ -98,6 +98,8 @@ Route::group(['prefix' => '/sales', 'as' => 'sales.'], function () {
     Route::delete('orders/{order}/restore',                 [OrderController::class, 'restore'])->name('orders.restore');
     Route::post('orders/{order}/resend-admin-notification', [OrderController::class, 'resendAdminNotification'])->name('orders.resend-admin-notification');
 
+    Route::get('order/{order}/receipt/preview',             [OrderController::class, 'previewReceipt'])->name('orders.receipt.preview');
+
 
     Route::resource('customers',                            CustomerController::class);
 
