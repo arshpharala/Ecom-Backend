@@ -26,12 +26,12 @@ class CustomerController extends Controller
                 ->editColumn(
                     'last_login_at',
                     fn($row) =>
-                    $row->last_login_at ? $row->last_login_at->format('d-M-Y h:i A') : '-'
+                    $row->last_login_at?->format('d-M-Y h:i A') ?? '-'
                 )
                 ->editColumn(
                     'password_changed_at',
                     fn($row) =>
-                    $row->password_changed_at ? $row->password_changed_at->format('d-M-Y h:i A') : '-'
+                    $row->password_changed_at?->format('d-M-Y h:i A') ?? '-'
                 )
                 ->addColumn('action', function ($row) {
                     $showUrl = route('admin.sales.customers.show', $row->id);
