@@ -16,6 +16,7 @@ use App\Http\Controllers\API\V1\ProductApiController;
 use App\Http\Controllers\API\V1\ProfileApiController;
 use App\Http\Controllers\API\V1\CartApiController;
 use App\Http\Controllers\API\V1\CheckoutApiController;
+use App\Http\Controllers\API\V1\SubscriberApiController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -41,6 +42,10 @@ Route::group(
     Route::get('attributes', [AttributeApiController::class, 'index']);
 
     Route::post('enquiry', [ContactApiController::class, 'store']);
+
+    // Newsletter Subscribe (throttled: 5 per minute)
+    Route::post('subscribe', [SubscriberApiController::class, 'store'])
+        ->middleware('throttle:5,1');
 
     // Cart Routes
     Route::prefix('cart')->group(function () {
