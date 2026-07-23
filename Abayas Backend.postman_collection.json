@@ -44,13 +44,19 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_uri}}/products/019f5fd9-c791-710c-ac4e-d6c0f7b4cc20",
+              "raw": "{{base_uri}}/products/:variantId",
               "host": [
                 "{{base_uri}}"
               ],
               "path": [
                 "products",
-                "019f5fd9-c791-710c-ac4e-d6c0f7b4cc20"
+                ":variantId"
+              ],
+              "variable": [
+                {
+                  "key": "variantId",
+                  "value": "019f5fd9-c791-710c-ac4e-d6c0f7b4cc20"
+                }
               ]
             }
           },
@@ -81,7 +87,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_uri}}/products?exclude_ids[]=019f5b55-11de-7102-a916-2371853cbd6e&category_id=019f5b52-832c-7035-a25f-bcbc4cf40e0a",
+              "raw": "{{base_uri}}/products?exclude_ids[]=019f5b55-11de-7102-a916-2371853cbd6e&category_id[]=019f5b52-832c-7035-a25f-bcbc4cf40e0a",
               "host": [
                 "{{base_uri}}"
               ],
@@ -94,9 +100,8 @@
                   "value": "019f5b55-11de-7102-a916-2371853cbd6e"
                 },
                 {
-                  "key": "category_id",
-                  "value": "019f5b52-832c-7035-a25f-bcbc4cf40e0a",
-                  "type": "text"
+                  "key": "category_id[]",
+                  "value": "019f5b52-832c-7035-a25f-bcbc4cf40e0a"
                 }
               ]
             }
@@ -107,7 +112,16 @@
           "name": "Attributes",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": {
+              "raw": "{{base_uri}}/attributes",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "attributes"
+              ]
+            }
           },
           "response": []
         }
@@ -206,7 +220,17 @@
               "name": "List Addresses",
               "request": {
                 "method": "GET",
-                "header": []
+                "header": [],
+                "url": {
+                  "raw": "{{base_uri}}/auth/addresses",
+                  "host": [
+                    "{{base_uri}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "addresses"
+                  ]
+                }
               },
               "response": []
             },
@@ -234,6 +258,27 @@
                     "addresses"
                   ]
                 }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Orders",
+          "item": [
+            {
+              "name": "List User Orders",
+              "request": {
+                "method": "GET",
+                "header": []
+              },
+              "response": []
+            },
+            {
+              "name": "Order Details",
+              "request": {
+                "method": "GET",
+                "header": []
               },
               "response": []
             }
@@ -301,7 +346,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "4|r8LImGlsyvEPQDpmDDSOSu68Pg702UzkY2M911xT64795da4",
+                  "value": "33|oymB4sAkA5hO41KTvxduNDE7yI8AyNhth3x7diT826d7dac8",
                   "type": "string"
                 }
               ]
@@ -446,7 +491,13 @@
           "name": "Get Cart",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "X-Cart-Session-Id",
+                "value": "",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "{{base_uri}}/cart",
               "host": [
@@ -466,7 +517,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"product_variant_id\": \"uuid-of-the-variant\",\r\n    \"quantity\": 1\r\n}\r\n",
+              "raw": "{\r\n    \"product_variant_id\": \"019f5fd9-c791-710c-ac4e-d6c0f7b4cc20\",\r\n    \"quantity\": 3\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -513,7 +564,7 @@
               "variable": [
                 {
                   "key": "itemid",
-                  "value": ""
+                  "value": "019f5fd9-c791-710c-ac4e-d6c0f7b4cc20"
                 }
               ]
             }
@@ -538,7 +589,7 @@
               "variable": [
                 {
                   "key": "itemId",
-                  "value": ""
+                  "value": "019f5fd9-c791-710c-ac4e-d6c0f7b4cc20"
                 }
               ]
             }
@@ -617,8 +668,26 @@
         {
           "name": "Process Checkout",
           "request": {
-            "method": "GET",
-            "header": []
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"payment_method\": \"credit_card\",\r\n    \"name\": \"John Doe\",\r\n    \"email\": \"john@example.com\",\r\n    \"phone_number\": \"+1234567890\",\r\n    \"address\": \"123 Main St, Apt 4B\",\r\n    \"city_id\": 1,\r\n    \"province_id\": 1,\r\n    \"country_id\": 1\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_uri}}/checkout",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "checkout"
+              ]
+            }
           },
           "response": [
             {
@@ -640,6 +709,15 @@
                       "language": "json"
                     }
                   }
+                },
+                "url": {
+                  "raw": "{{base_uri}}/checkout",
+                  "host": [
+                    "{{base_uri}}"
+                  ],
+                  "path": [
+                    "checkout"
+                  ]
                 }
               },
               "_postman_previewlanguage": null,
