@@ -234,10 +234,10 @@
 
       <div class="col-sm-5 text-right">
         <div class="btn-group shadow-sm">
-          <a href="{{ route('admin.orders.receipt.preview', $order->id) }}" class="btn btn-white btn-sm" target="_blank">
+          <a href="{{ route('admin.sales.orders.receipt.preview', $order->id) }}" class="btn btn-white btn-sm" target="_blank">
             <i class="fas fa-print mr-1"></i> Print
           </a>
-          <a href="{{ route('admin.orders.receipt.preview', $order->id) }}" class="btn btn-white btn-sm" target="_blank">
+          <a href="{{ route('admin.sales.orders.receipt.preview', $order->id) }}" class="btn btn-white btn-sm" target="_blank">
             <i class="fas fa-file-pdf mr-1 text-danger"></i> PDF
           </a>
           <a href="{{ route('admin.sales.orders.index') }}" class="btn btn-primary btn-sm">
