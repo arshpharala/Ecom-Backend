@@ -92,7 +92,7 @@ Route::group(
     Route::prefix('auth')->middleware('auth:sanctum')->group(function () {
       Route::post('/logout', [AuthController::class, 'logout']);
       Route::get('/me', [AuthController::class, 'me']);
-      Route::put('/profile', [ProfileApiController::class, 'update']);
+      Route::post('/profile', [ProfileApiController::class, 'update']);
       Route::apiResource('addresses', AddressApiController::class);
       Route::post('/email/resend', [EmailVerificationController::class, 'resend']);
 
