@@ -137,7 +137,7 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'image' => $user->detail ? Storage::url($user->detail->image) : null,
+            'image' => $user->detail && $user->detail->image ? get_attachment_url($user->detail->image) : null,
             'phone' => $user->detail ? $user->detail->mobile : null,
             'dob' => $user->detail ? $user->detail->dob : null,
             'country_id' => $user->detail ? $user->detail->country_id : null,

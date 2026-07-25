@@ -98,7 +98,7 @@ class ProfileApiController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'phone' => $user->detail ? $user->detail->mobile : null,
-                    'image' => $user->detail && $user->detail->image ? Storage::url($user->detail->image) : null,
+                    'image' => $user->detail && $user->detail->image ? get_attachment_url($user->detail->image) : null,
                     'dob' => $user->detail ? $user->detail->dob : null,
                     'country_id' => $user->detail ? $user->detail->country_id : null,
                     'email_verified' => !is_null($user->email_verified_at),
