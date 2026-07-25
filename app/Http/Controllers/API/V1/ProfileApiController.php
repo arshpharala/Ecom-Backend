@@ -70,8 +70,8 @@ class ProfileApiController extends Controller
 
             if ($request->hasFile('image')) {
                 // Delete old image if exists
-                if ($detail->image && Storage::disk('public')->exists($detail->image)) {
-                    Storage::disk('public')->delete($detail->image);
+                if ($detail->image && Storage::exists($detail->image)) {
+                    Storage::delete($detail->image);
                 }
                 $detail->image = $request->file('image')->store('users', 'public');
             }
