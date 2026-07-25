@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -136,7 +137,10 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'image' => $user->detail ? Storage::url($user->detail->image) : null,
             'phone' => $user->detail ? $user->detail->mobile : null,
+            'dob' => $user->detail ? $user->detail->dob : null,
+            'country_id' => $user->detail ? $user->detail->country_id : null,
             'email_verified' => !is_null($user->email_verified_at),
             'is_sso' => !is_null($user->provider_name),
             'provider' => $user->provider_name,
