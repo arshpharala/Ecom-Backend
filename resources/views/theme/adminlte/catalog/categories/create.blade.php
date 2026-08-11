@@ -63,6 +63,14 @@
                   <span class="text-danger">{{ $message }}</span>
                 @enderror
               </div>
+              <div class="form-group">
+                <label for="description_{{ $locale }}">Description ({{ strtoupper($locale) }})</label>
+                <textarea name="description[{{ $locale }}]" rows="3"
+                  class="form-control @error("description.$locale") is-invalid @enderror">{{ old("description.$locale") }}</textarea>
+                @error("description.$locale")
+                  <span class="text-danger">{{ $message }}</span>
+                @enderror
+              </div>
             @endforeach
 
             {{-- Icon --}}

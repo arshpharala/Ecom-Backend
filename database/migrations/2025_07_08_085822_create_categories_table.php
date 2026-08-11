@@ -30,6 +30,7 @@ return new class extends Migration
             $table->uuid('category_id')->index();
             $table->string('locale', 5)->index();
             $table->string('name');
+            $table->text('description')->nullable();
             $table->unique(['category_id', 'locale']);
         });
     }

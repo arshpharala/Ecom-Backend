@@ -112,7 +112,7 @@ class CategoryController extends Controller
             'valid_till' => $validated['valid_till'] ?? null,
         ]);
         foreach ($validated['name'] as $locale => $name) {
-            $category->translations()->create(['locale' => $locale, 'name' => $name]);
+            $category->translations()->create(['locale' => $locale, 'name' => $name, 'description' => $validated['description'][$locale]]);
         }
         if (!empty($validated['attributes'])) {
             $category->attributes()->sync($validated['attributes']);
@@ -223,6 +223,7 @@ class CategoryController extends Controller
         foreach ($validated['name'] as $locale => $name) {
             $translation = $category->translations()->firstOrNew(['locale' => $locale]);
             $translation->name = $name;
+            $translation->description = $validated['description'][$locale] ?? null;
             $category->translations()->save($translation);
         }
         $category->attributes()->sync($validated['attributes'] ?? []);
