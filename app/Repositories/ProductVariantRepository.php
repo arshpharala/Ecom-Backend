@@ -122,6 +122,8 @@ class ProductVariantRepository
 
         if (auth()->check()) {
             $productVariant->is_wishlisted = Wishlist::isWishlisted(auth()->id(), $productVariant->id);
+        }else{
+            $productVariant->is_wishlisted = false;
         }
 
         // Resolve stock display
