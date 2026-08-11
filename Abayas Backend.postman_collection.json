@@ -278,7 +278,72 @@
               "name": "Order Details",
               "request": {
                 "method": "GET",
-                "header": []
+                "header": [],
+                "url": {
+                  "raw": "{{base_uri}}/auth/orders/:id",
+                  "host": [
+                    "{{base_uri}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "orders",
+                    ":id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "14"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Wishlist",
+          "item": [
+            {
+              "name": "Add / Remove to wishlist",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"product_variant_id\" : \"019f6a43-d6d2-721d-937b-0b01fdf19edd\",\r\n    \"action\": \"enable\" // or 'disable' or 'toggle'\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_uri}}/wishlist",
+                  "host": [
+                    "{{base_uri}}"
+                  ],
+                  "path": [
+                    "wishlist"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Wishlist",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_uri}}/wishlist",
+                  "host": [
+                    "{{base_uri}}"
+                  ],
+                  "path": [
+                    "wishlist"
+                  ]
+                }
               },
               "response": []
             }
@@ -374,7 +439,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "5|IPaIeFYDKu1UiN6UtX63DkoAakxXjlpp7ljsX7Hc6e0b3aa5",
+                  "value": "86|9x07BNtyndLvORac7bXUMG0upxqSyrelqfcBGrZQ42edc0f6",
                   "type": "string"
                 }
               ]
@@ -514,10 +579,16 @@
           "name": "Add Item to Cart",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"product_variant_id\": \"019f5fd9-c791-710c-ac4e-d6c0f7b4cc20\",\r\n    \"quantity\": 3\r\n}\r\n",
+              "raw": "{\r\n    \"product_variant_id\": \"019f5fd9-c791-710c-ac4e-d6c0f7b4cc20\",\r\n    \"quantity\": 2\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -544,7 +615,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"quantity\": 2\r\n}",
+              "raw": "{\r\n    \"quantity\": 5\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -761,8 +832,104 @@
               "body": null
             }
           ]
+        },
+        {
+          "name": "Process Checkout",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"payment_method\": \"credit_card\",\r\n    \"name\": \"Arshdeep\",\r\n    \"email\": \"john@example.com\",\r\n    \"phone\": \"+1234567890\",\r\n    \"address\": \"123 Main St, Apt 4B\",\r\n    \"city_id\": 1,\r\n    \"province_id\": 1,\r\n    \"country_id\": 1\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_uri}}/checkout",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "checkout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Process Checkout",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"payment_method\": \"credit_card\",\r\n    \"name\": \"John Doe\",\r\n    \"email\": \"john@example.com\",\r\n    \"phone\": \"+1234567890\",\r\n    \"address\": \"123 Main St, Apt 4B\",\r\n    \"city_id\": 1,\r\n    \"province_id\": 1,\r\n    \"country_id\": 1\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_uri}}/checkout",
+              "host": [
+                "{{base_uri}}"
+              ],
+              "path": [
+                "checkout"
+              ]
+            }
+          },
+          "response": []
         }
       ]
+    },
+    {
+      "name": "Subscribe",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"email\": \"test@example.com\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_uri}}/subscribe",
+          "host": [
+            "{{base_uri}}"
+          ],
+          "path": [
+            "subscribe"
+          ]
+        }
+      },
+      "response": []
     }
   ],
   "event": [
