@@ -22,15 +22,19 @@ class StoreWishlistRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_variant_id' => 'required|uuid',
-            'toggle' => 'sometimes',
+            'product_variant_id' => 'required|string|exists:product_variants,id',
+            'action'             => 'sometimes|nullable',
+            'status'             => 'sometimes|nullable',
+            'enable'             => 'sometimes|nullable',
+            'toggle'             => 'sometimes|nullable',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'product_variant_id.required' => 'Select a specific variant or a product.',
+            'product_variant_id.required' => 'Select a specific product variant.',
+            'product_variant_id.exists'   => 'The selected product variant does not exist.',
         ];
     }
 }

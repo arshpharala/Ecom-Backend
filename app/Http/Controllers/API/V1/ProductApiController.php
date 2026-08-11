@@ -5,8 +5,11 @@ namespace App\Http\Controllers\API\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Catalog\AttributeValue;
 use App\Models\Catalog\Product;
+use App\Http\Requests\StoreWishlistRequest;
+use App\Models\Wishlist;
 use App\Repositories\ProductVariantRepository;
 use App\Services\CartService;
+use App\Services\WishlistService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -162,5 +165,23 @@ class ProductApiController extends Controller
         }
 
         return $allVariants;
+    }
+
+    /**
+     * Wishlist the product
+     */
+    public function wishlist(StoreWishlistRequest $request, WishlistService $wishlistService)
+    {
+        $userId = auth()->id();
+        $variantId = $request->validated()['product_variant_id'];
+
+        $action = $request->input('action')
+            ?? $request->input('status')
+            ?? $request->input('enable')
+            ?? ($request->has('toggle') ? ((bool)$request->input('toggle') ? 'toggle' : 'enable') : 'toggle');
+
+        $result = $wishlistService->updateWishlist($userId, $variantId, $action);
+
+        return response()->json($result);
     }
 }

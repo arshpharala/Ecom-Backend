@@ -17,6 +17,7 @@ use App\Http\Controllers\API\V1\ProfileApiController;
 use App\Http\Controllers\API\V1\CartApiController;
 use App\Http\Controllers\API\V1\CheckoutApiController;
 use App\Http\Controllers\API\V1\SubscriberApiController;
+use App\Http\Controllers\API\V1\WishlistApiController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -61,6 +62,15 @@ Route::group(
         Route::post('/', [CheckoutApiController::class, 'checkout']);
         Route::post('/coupon/apply', [CheckoutApiController::class, 'applyCoupon']);
         Route::post('/coupon/remove', [CheckoutApiController::class, 'removeCoupon']);
+    });
+
+    // Wishlist Routes (auth required)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/wishlist', [WishlistApiController::class, 'index']);
+        Route::post('/wishlist', [WishlistApiController::class, 'store']);
+        Route::post('/wishlist/toggle', [WishlistApiController::class, 'store']);
+        Route::delete('/wishlist/{variantId}', [WishlistApiController::class, 'destroy']);
+        Route::post('/products/wishlist', [ProductApiController::class, 'wishlist']);
     });
 
     /*
