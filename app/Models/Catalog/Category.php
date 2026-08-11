@@ -96,7 +96,8 @@ class Category extends Model
             'categories.text_color',
             'categories.background_color',
             'categories.created_at',
-            'category_translations.name'
+            'category_translations.name',
+            'category_translations.description'
         );
     }
 
