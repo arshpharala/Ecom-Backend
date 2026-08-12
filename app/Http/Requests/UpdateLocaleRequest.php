@@ -18,6 +18,24 @@ class UpdateLocaleRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('code')) {
+            $this->merge([
+                'code' => strtolower(trim((string) $this->code)),
+            ]);
+        }
+
+        if ($this->has('direction')) {
+            $this->merge([
+                'direction' => strtolower(trim((string) $this->direction)),
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -27,7 +45,7 @@ class UpdateLocaleRequest extends FormRequest
         $id = $this->route('locale');
 
         return [
-            'code'       => ['required', 'unique:locales,code,' . $id . 'id', new Code],
+            'code'       => ['required', \Illuminate\Validation\Rule::unique('locales', 'code')->ignore($id), new Code],
             'name'       => 'required|string|max:100',
             'direction'  => ['required', new Enum(TextDirection::class)],
             'logo'       => 'nullable|image|max:2048',

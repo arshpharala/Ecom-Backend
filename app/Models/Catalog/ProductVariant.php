@@ -90,12 +90,12 @@ class ProductVariant extends Model
 
         return $query
             ->join('products', 'product_variants.product_id', '=', 'products.id')
-            ->join('product_translations', function ($join) use ($locale) {
+            ->leftJoin('product_translations', function ($join) use ($locale) {
                 $join->on('product_translations.product_id', '=', 'products.id')
                     ->where('product_translations.locale', $locale);
             })
-            ->join('categories', 'categories.id', '=', 'products.category_id')
-            ->join('category_translations', function ($join) use ($locale) {
+            ->leftJoin('categories', 'categories.id', '=', 'products.category_id')
+            ->leftJoin('category_translations', function ($join) use ($locale) {
                 $join->on('categories.id', '=', 'category_translations.category_id')
                     ->where('category_translations.locale', $locale);
             })

@@ -62,7 +62,12 @@ class Banner extends Model
 
     public function scopeWithJoins($query)
     {
-        return $query->leftJoin('banner_translations', 'banners.id', '=', 'banner_translations.banner_id');
+        $locale = app()->getLocale();
+
+        return $query->leftJoin('banner_translations', function ($join) use ($locale) {
+            $join->on('banners.id', '=', 'banner_translations.banner_id')
+                ->where('banner_translations.locale', '=', $locale);
+        });
     }
 
     public function scopeWithSelection($query)

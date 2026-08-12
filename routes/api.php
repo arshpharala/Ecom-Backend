@@ -34,7 +34,10 @@ Route::post('/touras/webhook', [TourasController::class, 'webhook'])->name('tour
 */
 
 Route::group(
-  ['prefix' => '/v1'],
+  [
+    'prefix' => '/v1/{lang?}',
+    'where' => ['lang' => '[a-zA-Z]{2}([-_][a-zA-Z]{2})?'],
+  ],
   function () {
     Route::get('/init', [\App\Http\Controllers\API\V1\CoreApiController::class, 'init']);
     Route::apiResource('banners', BannerApiController::class);

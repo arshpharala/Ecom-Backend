@@ -111,7 +111,12 @@ class Offer extends Model
 
     function scopeWithJoins($query)
     {
-        return $query->leftJoin('offer_translations', 'offers.id', '=', 'offer_translations.offer_id');;
+        $locale = app()->getLocale();
+
+        return $query->leftJoin('offer_translations', function ($join) use ($locale) {
+            $join->on('offers.id', '=', 'offer_translations.offer_id')
+                ->where('offer_translations.locale', '=', $locale);
+        });
     }
 
     function scopeWithSelection($query)

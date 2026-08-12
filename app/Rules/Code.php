@@ -14,8 +14,8 @@ class Code implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (! preg_match('/^[a-zA-Z]+[a-zA-Z0-9_]+$/', $value)) {
-            $fail('The :attribute format is invalid. It must start with a letter and may contain letters, numbers, or underscores.');
+        if (! preg_match('/^[a-zA-Z]{2,3}([-_][a-zA-Z0-9]{2,4})?$/', $value) && ! preg_match('/^[a-zA-Z]+[a-zA-Z0-9_-]*$/', $value)) {
+            $fail('The :attribute format is invalid. It must be a valid language code (e.g., en, ar, en-ae).');
         }
     }
 }

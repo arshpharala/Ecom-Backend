@@ -18,6 +18,24 @@ class StoreLocaleRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('code')) {
+            $this->merge([
+                'code' => strtolower(trim((string) $this->code)),
+            ]);
+        }
+
+        if ($this->has('direction')) {
+            $this->merge([
+                'direction' => strtolower(trim((string) $this->direction)),
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>

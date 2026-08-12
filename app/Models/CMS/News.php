@@ -30,11 +30,11 @@ class News extends Model
 
     public function translations()
     {
-        return $this->hasMany(TestimonialTranslation::class);
+        return $this->hasMany(NewsTranslation::class);
     }
 
     public function translation()
     {
-        return $this->hasOne(TestimonialTranslation::class)->where('locale', app()->getLocale());
+        return $this->hasOne(NewsTranslation::class)->where('locale', app()->getLocale());
     }
 }
