@@ -18,12 +18,12 @@ class SetApiLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. Determine requested language from path, query string, or headers
-        $rawLang = $request->route('lang')
+        // Determine requested language from X-Locale header, Accept-Language, or query parameter
+        $rawLang = $request->header('X-Locale')
+            ?? $request->header('Accept-Language')
+            ?? $request->header('lang')
             ?? $request->query('lang')
             ?? $request->query('locale')
-            ?? $request->header('X-Locale')
-            ?? $request->header('Accept-Language')
             ?? config('app.locale', 'en');
 
         if (is_string($rawLang) && str_contains($rawLang, ',')) {
@@ -40,11 +40,6 @@ class SetApiLocale
         $selectedLocale = static::resolveLocale($rawLang, $validLocales);
 
         App::setLocale($selectedLocale);
-
-        // If lang was captured as a route parameter, forget it so controller actions don't get shifted parameters
-        if ($request->route() && $request->route()->hasParameter('lang')) {
-            $request->route()->forgetParameter('lang');
-        }
 
         return $next($request);
     }
