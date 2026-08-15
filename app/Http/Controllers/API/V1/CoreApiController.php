@@ -7,6 +7,7 @@ use App\Models\CMS\Country;
 use App\Models\CMS\Province;
 use App\Models\Catalog\Brand;
 use App\Models\Catalog\Category;
+use App\Models\CMS\Locale;
 use App\Models\CMS\Tag;
 use Illuminate\Http\JsonResponse;
 
@@ -30,6 +31,8 @@ class CoreApiController extends Controller
             ->get();
             
         $tags = Tag::active()->orderBy('position')->get();
+
+        $locales = Locale::get();
 
         $settings = [
             'contact_number' => setting('contact_phone'),
@@ -55,6 +58,7 @@ class CoreApiController extends Controller
             'success' => true,
             'data' => [
                 'countries' => $countries,
+                'locales' => $locales,
                 'brands' => $brands,
                 'categories' => $categories,
                 'tags' => $tags,
