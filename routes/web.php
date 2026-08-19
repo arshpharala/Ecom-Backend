@@ -13,3 +13,4 @@ Route::get('/session/check', function () {
         ? response()->noContent(200)
         : response()->noContent(401);
 })->name('session.check');
+

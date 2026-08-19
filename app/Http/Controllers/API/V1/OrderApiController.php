@@ -65,4 +65,28 @@ class OrderApiController extends Controller
 
         return new OrderDetailResource($order);
     }
+
+    public function previewReceipt(String $orderNo)
+    {
+        $order = Order::where('order_number', $orderNo)->first();
+        if (!$order) {
+            return response()->json([
+                'message' => 'Order not found',
+            ], 404);
+        }
+        $order->loadMissing([
+            'lineItems.productVariant.attributeValues.attribute',
+            'lineItems.productVariant.product.translation',
+            'currency',
+            'billingAddress',
+            'shippingAddress',
+            'couponUsages',
+        ]);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdfs.order-receipt', [
+            'order' => $order,
+        ]);
+
+        return $pdf->stream("Receipt-{$order->reference_number}.pdf");
+    }
 }

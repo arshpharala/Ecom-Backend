@@ -108,6 +108,7 @@ Route::group(
 
       Route::get('/orders', [OrderApiController::class, 'index']);
       Route::get('/orders/{id}', [OrderApiController::class, 'show']);
+      Route::get('/orders/receipt/{orderNo}', [OrderApiController::class, 'previewReceipt']);
     });
   }
 );
