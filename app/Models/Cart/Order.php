@@ -84,17 +84,17 @@ class Order extends Model
 
     public function address()
     {
-        return $this->belongsTo(Address::class, 'billing_address_id');
+        return $this->belongsTo(Address::class, 'billing_address_id')->withTrashed();
     }
 
     public function billingAddress()
     {
-        return $this->belongsTo(Address::class, 'billing_address_id');
+        return $this->belongsTo(Address::class, 'billing_address_id')->withTrashed();
     }
 
     public function shippingAddress()
     {
-        return $this->belongsTo(Address::class, 'shipping_address_id');
+        return $this->belongsTo(Address::class, 'shipping_address_id')->withTrashed();
     }
 
     // public function billingAddress()
