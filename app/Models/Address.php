@@ -7,9 +7,12 @@ use App\Models\CMS\City;
 use App\Models\CMS\Country;
 use App\Models\CMS\Province;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Address extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'user_id',
         'name',
